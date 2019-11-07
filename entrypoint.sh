@@ -17,6 +17,9 @@ setup_env
 case $action in
 
   sshd)
+    # sshd runs the AuthorizedKeysCommand in a shell that doesn't inherit the
+    # env, so we need to pass it somehow.  iampubkeys.sh sources bastion.env to
+    # get it
     bastion_env_file="/bastion.env"
     echo "PATH=$PATH" > $bastion_env_file
     env | grep "^AWS" >> $bastion_env_file
