@@ -28,8 +28,15 @@ case $action in
     env | grep "^GEM" >> $bastion_env_file
     env | grep "^BASTION" >> $bastion_env_file
     chmod 744 $bastion_env_file
+    sshd_cmd="/usr/sbin/sshd -D -e -p $SVC_PORT"
     echo "Starting sshd"
-    /usr/sbin/sshd -D -e -p $SVC_PORT
+
+    if [[ "$1" == -d* ]]; then
+      # debug mode exits after disconnect
+      while true; do $sshd_cmd "$@" || true; done
+    else
+      $sshd_cmd "$@"
+    fi
   ;;
 
   bash)
