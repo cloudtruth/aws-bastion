@@ -42,7 +42,12 @@ Clamp do
     iam_username = iam_user_pattern.gsub("{user}", sysuser)
     ssh_public_keys = lookup_ssh_keys_from_iam(client: client, resource: resource, iam_username: iam_username, system_username: sysuser)
 
-    puts ssh_public_keys.join("\n")
+    if ssh_public_keys.size > 0
+      puts ssh_public_keys.join("\n")
+    else
+      $stderr.puts "No public keys"
+      exit(1)
+    end
   end
 
   def assume_role(account:, role:)
