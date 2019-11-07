@@ -1,0 +1,6 @@
+AuthorizedKeysCommand /iampubkeys.sh
+AuthorizedKeysCommandUser root
+PasswordAuthentication no
+PubkeyAuthentication yes
+AuthorizedKeysFile none
+AuthenticationMethods publickey

@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  bastion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "sshd"
+    environment:
+      SVC_ENV: 'development'
+      SVC_PORT: '2222'
+#      BASTION_ACCOUNT: "123"
+#      BASTION_ROLE: "role-allowing-iam-inspect"
+#      BASTION_SSH_GROUP: "iam-group-that-allows-ssh-for-contained-iam-users"
+#      BASTION_SUDO_GROUP: "iam-group-that-allows-sudo-for-contained-iam-users"
+#      BASTION_IAM_USER_PATTERN: "{user}@cloudtruth.com"
+      BASTION_ACCOUNT: "180540047972"
+      BASTION_ROLE: "iam-inspect-for-bastion-ssh"
+      BASTION_SSH_GROUP: "super-admin"
+      BASTION_SUDO_GROUP: "super-admin"
+      BASTION_IAM_USER_PATTERN: "{user}@cloudtruth.com"
+      AWS_DEFAULT_REGION: 'us-east-1'
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_SESSION_TOKEN:
+    volumes:
+      - .:/srv/app
+      - bundle_cache:/srv/bundler
+    ports:
+      - "2222:2222"
+    # for pry
+    # stdin_open: true
+    # tty: true
+
+volumes:
+  bundle_cache:
