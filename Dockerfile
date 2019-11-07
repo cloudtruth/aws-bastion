@@ -33,9 +33,13 @@ RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key && \
     ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa && \
     ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
 
+#RUN sed -i '1 a\auth requisite pam_exec.so log=/tmp/pam.log /iamcreateuser.sh' /etc/pam.d/sshd
+RUN sed -i '1 a\auth requisite pam_exec.so /iamcreateuser.sh' /etc/pam.d/sshd
+
 COPY entrypoint.sh setup_user_from_iam.rb assume_role.rb $SVC_DIR/
 COPY iampubkeys.sh /
-RUN chmod 755 /iampubkeys.sh
+COPY iamcreateuser.sh /
+RUN chmod 755 /iampubkeys.sh /iamcreateuser.sh
 
 ENV BUNDLE_GEMFILE="$SVC_DIR/Gemfile"
 
