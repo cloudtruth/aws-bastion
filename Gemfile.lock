@@ -14,7 +14,21 @@ GEM
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     clamp (1.3.1)
+    diff-lcs (1.3)
     jmespath (1.4.0)
+    rspec (3.9.0)
+      rspec-core (~> 3.9.0)
+      rspec-expectations (~> 3.9.0)
+      rspec-mocks (~> 3.9.0)
+    rspec-core (3.9.0)
+      rspec-support (~> 3.9.0)
+    rspec-expectations (3.9.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.9.0)
+    rspec-mocks (3.9.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.9.0)
+    rspec-support (3.9.0)
 
 PLATFORMS
   ruby
@@ -22,6 +36,7 @@ PLATFORMS
 DEPENDENCIES
   aws-sdk-iam
   clamp
+  rspec
 
 RUBY VERSION
    ruby 2.6.5p114

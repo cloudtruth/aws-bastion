@@ -15,6 +15,9 @@ action=$1; shift
 setup_env
 
 case $action in
+  test)
+    bundle exec rspec spec
+  ;;
 
   sshd)
     # sshd runs the AuthorizedKeysCommand in a shell that doesn't inherit the
