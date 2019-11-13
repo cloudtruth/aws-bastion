@@ -37,7 +37,7 @@ RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key && \
     ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa && \
     ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
 
-COPY lib $SVC_DIR/
+COPY lib $SVC_DIR/lib/
 COPY entrypoint.sh $SVC_DIR/
 COPY bin/usertool.rb $SVC_DIR/bin/usertool.rb
 COPY bin/iampubkeys.sh /
