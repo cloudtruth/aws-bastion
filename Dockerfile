@@ -5,7 +5,7 @@ ENV SVC_ENV="production" \
     SVC_DIR="/srv/app" \
     BUNDLE_PATH="/srv/bundler" \
     BUILD_PACKAGES="" \
-    APP_PACKAGES="bash curl vim netcat tzdata apt-utils openssh-server sudo"
+    APP_PACKAGES="bash curl vim netcat tzdata apt-utils openssh-server sudo postgresql-client sshuttle"
 
 # Thes env var definitions reference values from the previous definitions, so they need to be split off on their own.
 # Otherwise, they'll receive stale values because Docker will read the values once before it starts setting values.
