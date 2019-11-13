@@ -27,7 +27,18 @@ case $action in
     env | grep "^BUNDLE" >> $bastion_env_file
     env | grep "^GEM" >> $bastion_env_file
     env | grep "^BASTION" >> $bastion_env_file
+    sed -i "s/=\(.*\)/='\1'/g" $bastion_env_file
     chmod 744 $bastion_env_file
+
+    # Pre-create known users so ssh will let them in if they have valid keys
+    if [[ $BASTION_FRONTLOAD_USERS == "true" ]]; then
+      group_arr=($BASTION_SSH_GROUPS)
+      bundle exec $SVC_DIR/bin/usertool.rb \
+        --account $BASTION_ACCOUNT --role $BASTION_ROLE \
+         create_users \
+          ${group_arr[@]/#/--ssh_group } --iam_user_pattern $BASTION_IAM_USER_PATTERN
+    fi
+
     sshd_cmd="/usr/sbin/sshd -D -e -p $SVC_PORT"
     echo "Starting sshd"
 
