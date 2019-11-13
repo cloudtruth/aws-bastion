@@ -22,4 +22,4 @@ AWS Console -> IAM -> Users -> <their user> -> Security credentials -> Upload SS
 SSH to your container
  * Plain ssh: `ssh user@bastion_hostname`
  * SSH with a socks proxy: `ssh -D<local_socks_port> user@bastion_hostname`
- * VPN with sshuttle: `sudo sshuttle --dns -r user@bastion_hostname 0/0`
+ * VPN with [sshuttle](https://sshuttle.readthedocs.io/en/stable/): `sudo sshuttle --dns -r user@bastion_hostname 0/0`
