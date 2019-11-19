@@ -16,14 +16,20 @@ pushed to the [docker registry](https://hub.docker.com/r/cloudtruth/aws-bastion)
 as part of CI/CD.  You can also built your own image from this repo so as to
 customize which system packages get installed to the bastion image.
 
-Setup a docker runtime with the `BASTION_*` environment variables in
-`docker-compose.yml`
+Setup a docker runtime and configure it with the environment variables:
+ * `BASTION_ACCOUNT`: The account to assume role to for looking up iam users and groups
+ * `BASTION_ROLE`: The role to assume role to for looking up iam users and groups
+ * `BASTION_SSH_GROUPS`: The IAM group to which users will belong to grant them permission to ssh into the bastion
+ * `BASTION_SUDO_GROUPS`: The IAM group to which users will belong to grant them permission to sudo on the bastion
+ * `BASTION_IAM_USER_PATTERN`: The pattern to use for converting between iam and system username, e.g. "\[user\]@mydomain.com"
+ * `BASTION_FRONTLOAD_USERS`:  Causes creation of system users for all known iam users on container start, otherwise done on first connect by that user
+ * `AWS_*`: Aws credentials as needed
+
  * local: docker-compose is already setup to test against a stub aws server (moto),
 but you can override the `AWS_*` variables in the environment or a .env file to
 run against AWS
  * AWS: Configure your AWS container setup (ECS fargate, EKS, Docker swarm, Custom,
-etc) for a bastion service with the `BASTION_*` variables in docker-compose.yml.
-Note that your security groups and network settings need to allow the bastion
+etc) for a bastion service with the above environment.  Note that your security groups and network settings need to allow the bastion
 host to connect to the internal systems it should have network access to.
 
 Create an IAM group that indicates ssh access to bastion allowed
