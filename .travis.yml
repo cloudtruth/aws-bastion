@@ -5,7 +5,7 @@ services:
 
 script:
   - docker --version && docker-compose --version
-  - ADDITIONAL_PACKAGES="" docker-compose build
+  - docker-compose build --build-arg ADDITIONAL_PACKAGES=""
   - docker-compose up -d bastion moto
   - docker-compose run dev test
 

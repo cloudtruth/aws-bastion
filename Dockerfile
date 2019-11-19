@@ -1,7 +1,7 @@
 FROM ruby:2.6.5 AS base
 
-ARG ADDITIONAL_PACKAGES
-ARG PACKAGES="bash tzdata apt-utils openssh-server sudo sshuttle ${ADDITIONAL_PACKAGES}"
+ARG PACKAGES="bash tzdata apt-utils openssh-server sudo sshuttle"
+ARG ADDITIONAL_PACKAGES="curl less netcat vim"
 
 ENV SVC_ENV="production" \
     SVC_PORT="2222" \
@@ -20,7 +20,7 @@ WORKDIR $SVC_DIR
 COPY Gemfile* $SVC_DIR/
 
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y $PACKAGES && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y $PACKAGES $ADDITIONAL_PACKAGES && \
     gem install bundler && \
     bundle install --without="development test" && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
