@@ -71,9 +71,8 @@ services:
     # tty: true
 
   moto:
-    image: motoserver/moto
     # waiting for updated docker build:
-    # git clone git@github.com:spulec/moto.git && cd moto && docker build -t mymoto .
-    # image: mymoto
+    # image: motoserver/moto
+    image: cloudtruth/moto
     ports:
       - "5000:5000"
