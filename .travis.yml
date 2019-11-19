@@ -12,6 +12,6 @@ script:
 deploy:
   provider: script
   # All master pushes deploy a 'dev' tag.  If TRAVIS_TAG is set, it also gets deployed along with a 'latest' tag
-  script: bash bin/deploy.sh aws-bastion_bastion_1 cloudtruth/aws-bastion dev "${TRAVIS_TAG:+latest}" "${TRAVIS_TAG}"
+  script: bash bin/deploy.sh aws-bastion_bastion:latest cloudtruth/aws-bastion dev "${TRAVIS_TAG:+latest}" "${TRAVIS_TAG}"
   on:
     branch: master
