@@ -11,6 +11,11 @@ them, and they have full control over the ssh keypair for authentication
 Install
 -------
 
+As a convenience, you can use the cloudtruth/aws-bastion image that is built and
+pushed to the [docker registry](https://hub.docker.com/r/cloudtruth/aws-bastion)
+as part of CI/CD.  You can also built your own image from this repo so as to
+customize which system packages get installed to the bastion image.
+
 Setup a docker runtime with the `BASTION_*` environment variables in
 `docker-compose.yml`
  * local: docker-compose is already setup to test against a stub aws server (moto),
