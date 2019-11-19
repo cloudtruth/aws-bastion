@@ -18,6 +18,6 @@ deploy:
       branch: master
   - provider: script
     # All master pushes deploy a 'dev' tag.  If TRAVIS_TAG is set, it also gets deployed along with a 'latest' tag
-    script: bash bin/deploy.sh aws-bastion-fat_bastion:latest cloudtruth/aws-bastion dev-fat "${TRAVIS_TAG:+latest-fat}" "${TRAVIS_TAG}-fat"
+    script: bash bin/deploy.sh aws-bastion-fat_bastion:latest cloudtruth/aws-bastion dev-fat "${TRAVIS_TAG:+latest-fat}" "${TRAVIS_TAG:+$TRAVIS_TAG-fat}"
     on:
       branch: master
