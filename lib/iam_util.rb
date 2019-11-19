@@ -2,9 +2,12 @@ require 'aws-sdk-iam'
 
 class IamUtil
 
-  def initialize(credentials)
-    @client = Aws::IAM::Client.new(credentials: credentials)
-    @resource = ::Aws::IAM::Resource.new(credentials: credentials)
+  def initialize(credentials=nil)
+    opts = {}
+    opts[:endpoint] = ENV["AWS_ENDPOINT_URL"] if ENV["AWS_ENDPOINT_URL"]
+    opts[:credentials] = credentials unless credentials.nil?
+    @client = Aws::IAM::Client.new(**opts)
+    @resource = ::Aws::IAM::Resource.new(**opts)
   end
 
   def iam_user(username)
@@ -23,6 +26,7 @@ class IamUtil
     @groups[groupname] ||= begin
       iam_group = @resource.group(groupname)
       # no exists? method, using the group resource for a non-group causes a raise
+      iam_group.path rescue raise "No IAM group with name: #{groupname}"
       iam_group
     end
   end

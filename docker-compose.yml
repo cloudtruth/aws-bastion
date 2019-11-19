@@ -1,29 +1,79 @@
-version: '3'
+version: '3.7'
+
+x-common-env:
+  &common-env
+  # The account and role to assume role to for looking up iam users and groups
+  BASTION_ACCOUNT: "${BASTION_ACCOUNT:-123456789012}"
+  BASTION_ROLE: "${BASTION_ROLE:-bastion-ssh}"
+  # The IAM group to which users will belong to grant them permission to ssh into the bastion
+  BASTION_SSH_GROUPS: "${BASTION_SSH_GROUPS:-admin user}"
+  # The IAM group to which users will belong to grant them permission to sudo on the bastion
+  BASTION_SUDO_GROUPS: "${BASTION_SUDO_GROUPS:-admin}"
+  # The pattern to use for converting between iam and system username, e.g. <user>@mydomain.com
+  BASTION_IAM_USER_PATTERN: "${BASTION_IAM_USER_PATTERN:-[user]@mydomain.com}"
+  # Causes creation of all users on container start, otherwise they will get created
+  # on first connect, but will have to connect twice - sshd doesn't seem to
+  # allow login in the same request as the system user is created
+  BASTION_FRONTLOAD_USERS: "${BASTION_FRONTLOAD_USERS:-false}"
+
+  # Pass through aws environment for dev/testing, and to make it easier to test
+  # against real aws
+  AWS_REGION: "${AWS_REGION:-local}"
+  AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION:-local}"
+  AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-testing}"
+  AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-testing}"
+  AWS_SECURITY_TOKEN: "${AWS_SECURITY_TOKEN:-testing}"
+  AWS_SESSION_TOKEN: "${AWS_SESSION_TOKEN:-testing}"
+  AWS_ENDPOINT_URL: "${AWS_ENDPOINT_URL:-http://moto:5000}"
+
 services:
 
   bastion:
     build:
       context: .
       dockerfile: Dockerfile
+      target: production
+      args:
+        BASTION_ADDITIONAL_PACKAGES: "${BASTION_ADDITIONAL_PACKAGES:-curl vim netcat}"
     command: "sshd"
     environment:
+      <<: *common-env
       SVC_ENV: 'development'
       SVC_PORT: '2222'
-      # Pass through aws environment to make it easier to test locally
-      AWS_DEFAULT_REGION: 'us-east-1'
-      AWS_ACCESS_KEY_ID:
-      AWS_SECRET_ACCESS_KEY:
-      AWS_SESSION_TOKEN:
-    env_file:
-      - .env
     volumes:
       - .:/srv/app
-      - bundle_cache:/srv/bundler
     ports:
       - "2222:2222"
+    depends_on:
+      - moto
+
+  # Runs ruby tests as well as integration tests that use a ssh client to
+  # connect to the bastion container
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        BASTION_ADDITIONAL_PACKAGES: "${BASTION_ADDITIONAL_PACKAGES:-curl vim netcat}"
+    command: "exec tail -f /dev/null" # Keeps container running for rubymine exec mode
+    environment:
+      <<: *common-env
+      BASTION_HOST: 'bastion'
+      BASTION_PORT: '2222'
+    volumes:
+      - .:/srv/app
+    depends_on:
+      - moto
+      - bastion
     # for pry
     # stdin_open: true
     # tty: true
 
-volumes:
-  bundle_cache:
+  moto:
+    image: motoserver/moto
+    # waiting for updated docker build:
+    # git clone git@github.com:spulec/moto.git && cd moto && docker build -t mymoto .
+    # image: mymoto
+    ports:
+      - "5000:5000"

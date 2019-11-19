@@ -11,14 +11,16 @@ class AssumeRole
   end
 
   def assume
-      sts = ::Aws::STS::Client.new
+    opts = {}
+    opts[:endpoint] = ENV["AWS_ENDPOINT_URL"] if ENV["AWS_ENDPOINT_URL"]
+    sts = ::Aws::STS::Client.new(**opts)
 
-      resp = sts.assume_role({
-                                 duration_seconds: @duration_seconds,
-                                 role_session_name: "Atmos",
-                                 role_arn: @role_arn
-                             })
-      return resp
+    resp = sts.assume_role({
+                               duration_seconds: @duration_seconds,
+                               role_session_name: "Bastion",
+                               role_arn: @role_arn
+                           })
+    return resp
   end
 
   def env(resp)
@@ -31,7 +33,8 @@ class AssumeRole
   end
 
   def exec(*command_list)
-    system(env(assume), *command_list)
+    env = env(assume)
+    system(ENV.to_h.merge(env), *command_list)
   end
 
 end

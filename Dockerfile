@@ -1,11 +1,12 @@
-FROM ruby:2.6.5
+FROM ruby:2.6.5 AS base
 
+ARG BASTION_ADDITIONAL_PACKAGES
 ENV SVC_ENV="production" \
     SVC_PORT="2222" \
     SVC_DIR="/srv/app" \
     BUNDLE_PATH="/srv/bundler" \
     BUILD_PACKAGES="" \
-    APP_PACKAGES="bash curl vim netcat tzdata apt-utils openssh-server sudo postgresql-client sshuttle"
+    APP_PACKAGES="bash tzdata apt-utils openssh-server sudo sshuttle ${BASTION_ADDITIONAL_PACKAGES}"
 
 # Thes env var definitions reference values from the previous definitions, so they need to be split off on their own.
 # Otherwise, they'll receive stale values because Docker will read the values once before it starts setting values.
@@ -21,15 +22,17 @@ COPY Gemfile* $SVC_DIR/
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y $BUILD_PACKAGES $APP_PACKAGES && \
     gem install bundler && \
-    bundle install && \
+    bundle install --without="development test" && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /var/run/sshd
 COPY config/sshd.conf /etc/ssh/sshd_config
 
-# Add 'log=/tmp/pam.log' before script name to write to a debug log, and remove
-# 'quiet' to see exit codes
-RUN sed -i '1 a\auth requisite pam_exec.so quiet /iamcreateuser.sh' /etc/pam.d/sshd
+# remove 'quiet' to see exit codes
+RUN sed -i '1 a\auth requisite pam_exec.so quiet log=/var/log/bastion-createuser.log /usr/sbin/iamcreateuser.sh' /etc/pam.d/sshd
+
+# make it easy to tail logs before they get created
+RUN touch /var/log/bastion-pubkeys.log /var/log/bastion-createuser.log
 
 # Make sure we get fresh keys
 # Should this be at container start?
@@ -39,16 +42,20 @@ RUN rm -rf /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_dsa_key && \
 
 COPY lib $SVC_DIR/lib/
 COPY entrypoint.sh $SVC_DIR/
-COPY bin/usertool.rb $SVC_DIR/bin/usertool.rb
-COPY bin/iampubkeys.sh /
-COPY bin/iamcreateuser.sh /
-RUN chmod 755 /iampubkeys.sh /iamcreateuser.sh
+COPY bin/usertool.rb $SVC_DIR/bin/
+COPY bin/iampubkeys.sh /usr/sbin/
+COPY bin/iamcreateuser.sh /usr/sbin/
+RUN chmod 755 $SVC_DIR/bin/usertool.rb /usr/sbin/iampubkeys.sh /usr/sbin/iamcreateuser.sh
 
 ENV BUNDLE_GEMFILE="$SVC_DIR/Gemfile"
 
 # Specify the script to use when running the container
 ENTRYPOINT ["entrypoint.sh"]
+
+FROM base AS production
 # Start the main app process by sending the "app" parameter to the entrypoint
 CMD ["sshd"]
-
 EXPOSE $SVC_PORT
+
+FROM base AS development
+RUN bundle install --with="development test"

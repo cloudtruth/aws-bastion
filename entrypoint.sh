@@ -16,16 +16,15 @@ setup_env
 
 case $action in
   test)
-    bundle exec rspec spec
+    /usr/local/bin/bundle exec rspec
   ;;
 
   sshd)
     # sshd runs the AuthorizedKeysCommand in a shell that doesn't inherit the
     # env, so we need to pass it somehow.  iampubkeys.sh sources bastion.env to
     # get it
-    bastion_env_file="/bastion.env"
-    echo "PATH=$PATH" > $bastion_env_file
-    env | grep "^AWS" >> $bastion_env_file
+    bastion_env_file="/etc/bastion.env"
+    env | grep "^AWS" > $bastion_env_file
     env | grep "^SVC" >> $bastion_env_file
     env | grep "^BUNDLE" >> $bastion_env_file
     env | grep "^GEM" >> $bastion_env_file
@@ -36,10 +35,10 @@ case $action in
     # Pre-create known users so ssh will let them in if they have valid keys
     if [[ $BASTION_FRONTLOAD_USERS == "true" ]]; then
       group_arr=($BASTION_SSH_GROUPS)
-      bundle exec $SVC_DIR/bin/usertool.rb \
+      /usr/local/bin/bundle exec $SVC_DIR/bin/usertool.rb \
         --account $BASTION_ACCOUNT --role $BASTION_ROLE \
          create_users \
-          ${group_arr[@]/#/--ssh_group } --iam_user_pattern $BASTION_IAM_USER_PATTERN
+          ${group_arr[@]/#/--ssh_group } --pattern $BASTION_IAM_USER_PATTERN
     fi
 
     sshd_cmd="/usr/sbin/sshd -D -e -p $SVC_PORT"
