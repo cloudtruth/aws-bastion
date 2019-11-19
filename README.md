@@ -13,7 +13,7 @@ Install
 
 As a convenience, you can use the cloudtruth/aws-bastion image that is built and
 pushed to the [docker registry](https://hub.docker.com/r/cloudtruth/aws-bastion)
-as part of CI/CD.  You can also built your own image from this repo so as to
+as part of CI/CD.  You can also build your own image from this repo so as to
 customize which system packages get installed to the bastion image.
 
 Setup a docker runtime and configure it with the environment variables:
@@ -23,7 +23,7 @@ Setup a docker runtime and configure it with the environment variables:
  * `BASTION_SUDO_GROUPS`: The IAM group to which users will belong to grant them permission to sudo on the bastion
  * `BASTION_IAM_USER_PATTERN`: The pattern to use for converting between iam and system username, e.g. "\[user\]@mydomain.com"
  * `BASTION_FRONTLOAD_USERS`:  Causes creation of system users for all known iam users on container start, otherwise done on first connect by that user
- * `AWS_*`: Aws credentials as needed
+ * `AWS_*`: Aws credentials as needed.  You won't need to set them if using instance/ecs roles when running the bastion container
 
  * local: docker-compose is already setup to test against a stub aws server (moto),
 but you can override the `AWS_*` variables in the environment or a .env file to
@@ -56,6 +56,12 @@ SSH to your container
  * Plain ssh: `ssh user@bastion_hostname`
  * SSH with a socks proxy: `ssh -D<local_socks_port> user@bastion_hostname`
  * VPN with [sshuttle](https://sshuttle.readthedocs.io/en/stable/): `sudo sshuttle --dns -r user@bastion_hostname 0/0`
+
+Note that when a user first connects to a new instance of the bastion container,
+they get prompted for a password.  Hit enter till it disconnects, then
+subsequent connections will succeed with their ssh keys.  If someone has a way
+to create a system user that ssh can use as part of the first connection, I
+would love to know how.
 
 Testing
 -------
