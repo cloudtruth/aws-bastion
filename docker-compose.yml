@@ -34,7 +34,7 @@ services:
       dockerfile: Dockerfile
       target: production
       args:
-        BASTION_ADDITIONAL_PACKAGES: "${BASTION_ADDITIONAL_PACKAGES:-curl vim netcat}"
+        ADDITIONAL_PACKAGES: "${ADDITIONAL_PACKAGES:-curl less netcat vim}"
     command: "sshd"
     environment:
       <<: *common-env
@@ -55,7 +55,7 @@ services:
       dockerfile: Dockerfile
       target: development
       args:
-        BASTION_ADDITIONAL_PACKAGES: "${BASTION_ADDITIONAL_PACKAGES:-curl vim netcat}"
+        ADDITIONAL_PACKAGES: "${ADDITIONAL_PACKAGES:-curl less netcat vim}"
     command: "exec tail -f /dev/null" # Keeps container running for rubymine exec mode
     environment:
       <<: *common-env

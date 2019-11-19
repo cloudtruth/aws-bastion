@@ -1,12 +1,12 @@
 FROM ruby:2.6.5 AS base
 
-ARG BASTION_ADDITIONAL_PACKAGES
+ARG ADDITIONAL_PACKAGES
+ARG PACKAGES="bash tzdata apt-utils openssh-server sudo sshuttle ${ADDITIONAL_PACKAGES}"
+
 ENV SVC_ENV="production" \
     SVC_PORT="2222" \
     SVC_DIR="/srv/app" \
-    BUNDLE_PATH="/srv/bundler" \
-    BUILD_PACKAGES="" \
-    APP_PACKAGES="bash tzdata apt-utils openssh-server sudo sshuttle ${BASTION_ADDITIONAL_PACKAGES}"
+    BUNDLE_PATH="/srv/bundler"
 
 # Thes env var definitions reference values from the previous definitions, so they need to be split off on their own.
 # Otherwise, they'll receive stale values because Docker will read the values once before it starts setting values.
@@ -20,7 +20,7 @@ WORKDIR $SVC_DIR
 COPY Gemfile* $SVC_DIR/
 
 RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y $BUILD_PACKAGES $APP_PACKAGES && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -q -y $PACKAGES && \
     gem install bundler && \
     bundle install --without="development test" && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
